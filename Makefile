@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -ansi -pedantic
 
-TARGET = sbo
+TARGET = sbopkg
 
 all: sbo.o update.o
 	$(CC) $(CFLAGS) sbo.c update.c -o $(TARGET)
