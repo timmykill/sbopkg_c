@@ -5,10 +5,6 @@ A parte gli scherzi, il progetto esiste soprattutto per evitare di dimenticare l
 
 ## TODO
 
- * Ordinare la lista salvata sul file binario.
-   + Già che si gonfia in dimensioni almeno diventa più veloce da leggere.
-   + Creare libreria con merge sort e binary search (type agnostic)
- * Creare funzione di ricerca
  * Integrare lo script creato in precedenza per poter inizare ad utilizzare questo programma.
    + Decidere dove piazzare i file temporanei e l'eseguibile, per poi integrarlo nel PATH
  * Creare uno SlackBuild per il progetto
