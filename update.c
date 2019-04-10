@@ -41,9 +41,12 @@ int update()
 	sbe_v = (Sb_entity*) malloc(sizeof(Sb_entity) * v_size);
 	v_l_size = fetch_sb_list(fp, sbe_v, v_size);
 	fclose(fp);
+	/* Sort the array */
+	qsort(sbe_v, v_l_size, sizeof(Sb_entity), sbecmp);
+	/* write it in a bin file */
 	fp = fopen(CACHE_FILE, "wb");
 	fwrite(&v_l_size, sizeof(int), 1, fp); 
-	fwrite(sbe_v, sizeof(Sb_entity), v_l_size, fp);
+	fwrite(sbe_v, v_l_size, sizeof(Sb_entity), fp);
 	fclose(fp);
 	printf("Real size: %d Logical Size: %d\n", v_size, v_l_size);
 	return 1;

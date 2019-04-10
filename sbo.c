@@ -3,19 +3,27 @@
 #include <stdlib.h>
 #include "entities.h"
 #include "update.h"
+#include "search_install.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	Sb_entity* sbe_v;
 	int v_size;
 	int i;
-	if ((sbe_v = fetch_from_datafile(&v_size)) == NULL){
-		update();
-		sbe_v = fetch_from_datafile(&v_size);
+	if (argc < 2){
+		printf("Usage: %s <search|update|install> <pkg>\n", argv[0]);
+		exit(EXIT_FAILURE);
 	}
-	for (i = 0; i < v_size; i++){
-		printf("Name: %s\nLocation: %s\nFiles: %s\nVersion: %s\nDownload: %s\nDonwload 64: %s\nMD5: %s\nMD5_64: %s\nRequires: %s\nShort Desc: %s\n\n", sbe_v[i].name, sbe_v[i].location, sbe_v[i].files, sbe_v[i].version, sbe_v[i].download, sbe_v[i].download_x86_64, sbe_v[i].md5sum, sbe_v[i].md5sum_x86_64, sbe_v[i].requires, sbe_v[i].short_desc);
+	/* per evitare tutti questi stringcmp usare hash*/
+	if (!strcmp("update", argv[1])){
+		update();
+	} else if ((sbe_v = fetch_from_datafile(&v_size)) == NULL){
+		printf("No bin repo found\nTry running update first\n");
+		exit(EXIT_FAILURE);
+	} else if (!strcmp("search", argv[1])){
+		search(argv[2], sbe_v, v_size);	
+	} else if (!strcmp("install", argv[1])){
+		install(argv[2], sbe_v, v_size);
 	}
 	return 0;
 }
-

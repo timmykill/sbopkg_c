@@ -24,4 +24,6 @@ typedef struct {
 	char short_desc[SHORT_DESC_MAX];
 } Sb_entity;
 
+int sbecmp(const void * a, const void * b);
+
 #endif

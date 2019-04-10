@@ -1,13 +1,15 @@
 CC = gcc
-CFLAGS = -ansi -pedantic
+CFLAGS = -pedantic
 
 TARGET = sbopkg
 
-all: sbo.o update.o
-	$(CC) $(CFLAGS) sbo.c update.c -o $(TARGET)
+objects = sbo.o update.o entities.o search_install.o
+
+all: $(objects)
+	$(CC) $(CFLAGS) $(objects) -o $(TARGET)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o
+	rm -f *.o repo.bin
