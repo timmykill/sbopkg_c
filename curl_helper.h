@@ -7,5 +7,6 @@ typedef struct {
 } MemoryStruct;
 
 MemoryStruct* curl_from_url(char* s);
+int curl_to_file(char* url, char* dir);
 
 #endif

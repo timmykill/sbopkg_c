@@ -1,6 +1,12 @@
 #ifndef ENTITIES_H_
 #define ENTITIES_H_
 
+/* Constants */
+#define SB_URL "https://slackbuilds.org/slackbuilds"
+#define SB_VER "14.2"
+#define SB_FILE "SLACKBUILDS.TXT"
+#define TMPDIR "/tmp/sbo_c/"
+
 /* define max field lenght */
 #define SBE_NAME_MAX 64
 #define SBE_LOCATION_MAX 64

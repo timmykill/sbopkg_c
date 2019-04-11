@@ -6,10 +6,8 @@
 #include "curl_helper.h"
 
 /* constants */
-#define SB_URL "https://slackbuilds.org/slackbuilds/14.2/SLACKBUILDS.TXT"
-#define SB_FILE "SLACKBUILDS.TXT"
 #define CACHE_FILE "repo.bin"
-
+#define SB_TXT_URL SB_URL "/" SB_VER "/" SB_FILE
 /* define file prefixes */
 #define NAME_PREF "SLACKBUILD NAME: "
 #define LOCATION_PREF "SLACKBUILD LOCATION: "
@@ -32,9 +30,9 @@ int update()
 	FILE* fp;
 	int v_size, v_l_size;
 	Sb_entity* sbe_v;
-	MemoryStruct* mp = curl_from_url(SB_URL);
+	printf("Getting Slackbuilds from %s\n", SB_TXT_URL);
+	MemoryStruct* mp = curl_from_url(SB_TXT_URL);
 	v_size = get_v_size(mp);
-	printf("%d\n", v_size);
 	sbe_v = (Sb_entity*) malloc(sizeof(Sb_entity) * v_size);
 	v_l_size = fetch_sb_list(mp, sbe_v, v_size);
 	free(mp->memory);
@@ -46,7 +44,7 @@ int update()
 	fwrite(&v_l_size, sizeof(int), 1, fp); 
 	fwrite(sbe_v, v_l_size, sizeof(Sb_entity), fp);
 	fclose(fp);
-	printf("Real size: %d Logical Size: %d\n", v_size, v_l_size);
+	printf("Found: %d Could load: %d\n", v_size, v_l_size);
 	return 1;
 }
 
