@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <curl/curl.h> 
 #include "entities.h"
+#include "curl_helper.h"
 
 /* constants */
 #define SB_URL "https://slackbuilds.org/slackbuilds/14.2/SLACKBUILDS.TXT"
@@ -21,9 +22,9 @@
 #define REQUIRES_PREF "SLACKBUILD REQUIRES: "
 #define SHORT_DESC_PREF "SLACKBUILD SHORT DESCRIPTION:  "
 
-static int get_v_size(FILE* fp);
-static int fetch_sb_list(FILE* fp, Sb_entity* sbe_v, size_t v_size);
-static int get_line(FILE* fp, char* prefix, char* field, size_t max_size);
+static int get_v_size(MemoryStruct* mp);
+static int fetch_sb_list(MemoryStruct* mp, Sb_entity* sbe_v, size_t v_size);
+static char get_line(MemoryStruct* mp, int* f_i, char* prefix, char* field, size_t max_size);
 
 /* Needs error checking */
 int update()
@@ -31,17 +32,13 @@ int update()
 	FILE* fp;
 	int v_size, v_l_size;
 	Sb_entity* sbe_v;
-	/* 
-	Get file
-	NOTE: when i know how to do it, ill make the http download natively
-	*/
-	system("curl '" SB_URL "' -o " SB_FILE);
-	fp = fopen(SB_FILE, "r");
-	v_size = get_v_size(fp);
+	MemoryStruct* mp = curl_from_url(SB_URL);
+	v_size = get_v_size(mp);
 	printf("%d\n", v_size);
 	sbe_v = (Sb_entity*) malloc(sizeof(Sb_entity) * v_size);
-	v_l_size = fetch_sb_list(fp, sbe_v, v_size);
-	fclose(fp);
+	v_l_size = fetch_sb_list(mp, sbe_v, v_size);
+	free(mp->memory);
+	free(mp);
 	/* Sort the array */
 	qsort(sbe_v, v_l_size, sizeof(Sb_entity), sbecmp);
 	/* write it in a bin file */
@@ -52,6 +49,7 @@ int update()
 	printf("Real size: %d Logical Size: %d\n", v_size, v_l_size);
 	return 1;
 }
+
 
 Sb_entity* fetch_from_datafile(int* v_size)
 {
@@ -68,102 +66,76 @@ Sb_entity* fetch_from_datafile(int* v_size)
 	return sbe_v;
 }
 
-static int get_v_size(FILE* fp)
+static int get_v_size(MemoryStruct* mp)
 {
-	int tmp, size = 0;
-	do {
-		tmp = fgetc(fp);
-		if (tmp == '\n')
-			if ((tmp = fgetc(fp)) == '\n')
-				size++;
-	} while (tmp != EOF);
-	rewind(fp);
+	int f_i, size = 0;
+	while (f_i < mp->size)
+		if (mp->memory[f_i++] == '\n' && mp->memory[f_i++] == '\n' )
+			size++;	
 	return size;
 }
 
-static int fetch_sb_list(FILE* fp, Sb_entity* sbe_v, size_t v_size)
+static int fetch_sb_list(MemoryStruct* mp, Sb_entity* sbe_v, size_t v_size)
 {
-	int logic_size = 0;
-	int err = 0;
-	int tolerable_err = -1;
-	int tot_err;
+	int logic_size = 0, file_index = 0;
+	char err;
 	Sb_entity sbe_tmp;
 	while(v_size > logic_size){
-		tot_err = 0;
-		err = get_line(fp, NAME_PREF, sbe_tmp.name, SBE_NAME_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, LOCATION_PREF, sbe_tmp.location, SBE_LOCATION_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, FILES_PREF, sbe_tmp.files, SBE_FILES_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, VERSION_PREF, sbe_tmp.version, SBE_VERSION_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, DOWNLOAD_PREF, sbe_tmp.download, SBE_DOWNLOAD_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, SBE_DOWNLOAD_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, MD5SUM_PREF, sbe_tmp.md5sum, SBE_MD5SUM_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, SBE_MD5SUM_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, REQUIRES_PREF, sbe_tmp.requires, SBE_REQUIRES_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		err = get_line(fp, SHORT_DESC_PREF, sbe_tmp.short_desc, SBE_SHORT_DESC_MAX);
-		if (err < tolerable_err) break;
-		else tot_err += err;
-		
-		/* get trailing newline*/
-		fgetc(fp);
-		if (tot_err == 10)
+		err = 0;
+		err |= get_line(mp, &file_index, NAME_PREF, sbe_tmp.name, SBE_NAME_MAX);
+		err |= get_line(mp, &file_index, LOCATION_PREF, sbe_tmp.location, SBE_LOCATION_MAX);
+		err |= get_line(mp, &file_index, FILES_PREF, sbe_tmp.files, SBE_FILES_MAX);
+		err |= get_line(mp, &file_index, VERSION_PREF, sbe_tmp.version, SBE_VERSION_MAX);
+		err |= get_line(mp, &file_index, DOWNLOAD_PREF, sbe_tmp.download, SBE_DOWNLOAD_MAX);
+		err |= get_line(mp, &file_index, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, SBE_DOWNLOAD_MAX);
+		err |= get_line(mp, &file_index, MD5SUM_PREF, sbe_tmp.md5sum, SBE_MD5SUM_MAX);
+		err |= get_line(mp, &file_index, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, SBE_MD5SUM_MAX);
+		err |= get_line(mp, &file_index, REQUIRES_PREF, sbe_tmp.requires, SBE_REQUIRES_MAX);
+		err |= get_line(mp, &file_index, SHORT_DESC_PREF, sbe_tmp.short_desc, SBE_SHORT_DESC_MAX);
+		file_index++;
+		if (!err){
 			sbe_v[logic_size++] = sbe_tmp;
+		} else if ((err == 2) || (err == 3)){
+			break;	
+		}
 	}
 	return logic_size;
 }
 
-static int get_line(FILE* fp, char* prefix, char* field, size_t max_size)
+/*
+	Ret codes:
+		0 : OK
+		1 : Ignore field
+		2 : Hit size limit
+*/
+static char get_line(MemoryStruct* mp, int* f_i, char* prefix, char* field, size_t max_size)
 {
-	int i;
-	int tmp;
+	char tmp = 0;
 	size_t str_len = strlen(prefix);
+	int i = 0;
 	/* check prefix */
-	for (i = 0; i < str_len; i++){
-		tmp = fgetc(fp);
-		if (tmp == EOF) {
-			return -2;
-		} else if (tmp == prefix[i]) {
-			continue;
-		} else {
-			return -1;
-		}
-	}
+	if ((*f_i)+str_len >= mp->size)
+		return 2;
+	else if (!strcmp(mp->memory + *f_i, prefix))
+		return 1;
+	(*f_i) += str_len;
 	/* get field */
-	for (i = 0; i < max_size; i++)
-		if ((tmp = fgetc(fp)) == EOF)
-			return -2;
-		else if (tmp == '\n')
-			break;
-		else
-			field[i] = tmp;
+	while (
+		(*f_i) < mp->size	
+		&& (tmp = mp->memory[(*f_i)++]) != '\n'
+		&& i < max_size 
+		)
+		field[i++] = tmp;
+
 	/* if we hit max size, result is invalid */
 	if (i == max_size){
 		/* ignore till newline */
-		do{
-			tmp = fgetc(fp);
-		} while (tmp != '\n');
+		while ((tmp = mp->memory[(*f_i)++]) != '\n');
 		/* sent line ending */
 		field[max_size-1] = '\0';
-		return 0;
+		return 1;
 	} else {
 		field[i] = '\0';
-		return 1;
+		return 0;
 	}
 }
