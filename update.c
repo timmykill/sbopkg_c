@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <curl/curl.h> 
 #include "entities.h"
 
 /* constants */
@@ -89,34 +90,34 @@ static int fetch_sb_list(FILE* fp, Sb_entity* sbe_v, size_t v_size)
 	Sb_entity sbe_tmp;
 	while(v_size > logic_size){
 		tot_err = 0;
-		err = get_line(fp, NAME_PREF, sbe_tmp.name, NAME_MAX);
+		err = get_line(fp, NAME_PREF, sbe_tmp.name, SBE_NAME_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, LOCATION_PREF, sbe_tmp.location, LOCATION_MAX);
+		err = get_line(fp, LOCATION_PREF, sbe_tmp.location, SBE_LOCATION_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, FILES_PREF, sbe_tmp.files, FILES_MAX);
+		err = get_line(fp, FILES_PREF, sbe_tmp.files, SBE_FILES_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, VERSION_PREF, sbe_tmp.version, VERSION_MAX);
+		err = get_line(fp, VERSION_PREF, sbe_tmp.version, SBE_VERSION_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, DOWNLOAD_PREF, sbe_tmp.download, DOWNLOAD_MAX);
+		err = get_line(fp, DOWNLOAD_PREF, sbe_tmp.download, SBE_DOWNLOAD_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, DOWNLOAD_MAX);
+		err = get_line(fp, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, SBE_DOWNLOAD_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, MD5SUM_PREF, sbe_tmp.md5sum, MD5SUM_MAX);
+		err = get_line(fp, MD5SUM_PREF, sbe_tmp.md5sum, SBE_MD5SUM_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, MD5SUM_MAX);
+		err = get_line(fp, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, SBE_MD5SUM_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, REQUIRES_PREF, sbe_tmp.requires, REQUIRES_MAX);
+		err = get_line(fp, REQUIRES_PREF, sbe_tmp.requires, SBE_REQUIRES_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
-		err = get_line(fp, SHORT_DESC_PREF, sbe_tmp.short_desc, SHORT_DESC_MAX);
+		err = get_line(fp, SHORT_DESC_PREF, sbe_tmp.short_desc, SBE_SHORT_DESC_MAX);
 		if (err < tolerable_err) break;
 		else tot_err += err;
 		

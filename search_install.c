@@ -31,6 +31,5 @@ void install(char* s, Sb_entity* sbe_v, int v_size)
 		printf("%s not found", s);
 		return;
 	}
-	printf("Installing: %s\nLocation: %s\n", sbe->name, sbe->location);
-	
+	printf("Installing: %s\nLocation: %s\n", sbe->name, sbe->location);	
 }

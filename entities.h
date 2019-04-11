@@ -2,26 +2,26 @@
 #define ENTITIES_H_
 
 /* define max field lenght */
-#define NAME_MAX 64
-#define LOCATION_MAX 64
-#define FILES_MAX 128
-#define VERSION_MAX 32
-#define DOWNLOAD_MAX 256
-#define MD5SUM_MAX 256
-#define REQUIRES_MAX 256
-#define SHORT_DESC_MAX 1024
+#define SBE_NAME_MAX 64
+#define SBE_LOCATION_MAX 64
+#define SBE_FILES_MAX 128
+#define SBE_VERSION_MAX 32
+#define SBE_DOWNLOAD_MAX 256
+#define SBE_MD5SUM_MAX 256
+#define SBE_REQUIRES_MAX 256
+#define SBE_SHORT_DESC_MAX 1024
 
 typedef struct {
-	char name[NAME_MAX];
-	char location[LOCATION_MAX];
-	char files[FILES_MAX];
-	char version[VERSION_MAX];
-	char download[DOWNLOAD_MAX];
-	char download_x86_64[DOWNLOAD_MAX];
-	char md5sum[MD5SUM_MAX];	
-	char md5sum_x86_64[MD5SUM_MAX];
-	char requires[REQUIRES_MAX];
-	char short_desc[SHORT_DESC_MAX];
+	char name[SBE_NAME_MAX];
+	char location[SBE_LOCATION_MAX];
+	char files[SBE_FILES_MAX];
+	char version[SBE_VERSION_MAX];
+	char download[SBE_DOWNLOAD_MAX];
+	char download_x86_64[SBE_DOWNLOAD_MAX];
+	char md5sum[SBE_MD5SUM_MAX];	
+	char md5sum_x86_64[SBE_MD5SUM_MAX];
+	char requires[SBE_REQUIRES_MAX];
+	char short_desc[SBE_SHORT_DESC_MAX];
 } Sb_entity;
 
 int sbecmp(const void * a, const void * b);
