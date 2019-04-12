@@ -33,11 +33,10 @@ void search(char* s, Sb_entity* sbe_v, int v_size)
 static SbEntity* new_locate(char* s, SbEntity* sbe_v, size_t v_size)
 {
 	SbEntity *sbe_tmp, *sbe;
-	printf("im in\n");
+	printf("v_size: %zu\n", v_size);
 	sbe_tmp = (SbEntity*) bsearch(s, sbe_v, v_size, sizeof(SbEntity), new_sbecmp);
 	if (sbe_tmp == NULL)
 		return NULL;
-	printf("im in\n");
 	sbe = (SbEntity*) malloc(sizeof(SbEntity));
 	memcpy(sbe, sbe_tmp, sizeof(SbEntity));
 	return sbe;
