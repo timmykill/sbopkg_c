@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -pedantic -I/usr/local/Cellar/curl/7.64.1/include
+CFLAGS = -g -pedantic -I/usr/local/Cellar/curl/7.64.1/include
 LINK = -L/usr/local/Cellar/curl/7.64.1/lib -lcurl -lldap -lz
 TARGET = sbopkg
 objects = sbo.o update.o entities.o search_install.o curl_helper.o
