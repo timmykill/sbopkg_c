@@ -4,20 +4,11 @@
 #include "entities.h"
 
 
-int new_sbecmp(const void * a, const void * b)
-{
-	printf("a: %zu, b: %zu:\nb: %s", ((SbEntity*)a)->name_size, ((SbEntity*)b)->name_size,((SbEntity*)b)->name );
-	return strcmp(
-		((SbEntity*)a)->name,
-		((SbEntity*)b)->name
-	);
-}
-
 int sbecmp(const void * a, const void * b)
 {
 	return strcmp(
-		((Sb_entity*)a)->name,
-		((Sb_entity*)b)->name
+		((SbEntity*)a)->name,
+		((SbEntity*)b)->name
 	);
 }
 

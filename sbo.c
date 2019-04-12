@@ -16,14 +16,14 @@ int main(int argc, char* argv[])
 	}
 	/* per evitare tutti questi stringcmp usare hash*/
 	if (!strcmp("update", argv[1])){
-		new_update();
-	} else if ((sbe_v = new_fetch_from_datafile(&v_size)) == NULL){
+		update();
+	} else if ((sbe_v = fetch_from_datafile(&v_size)) == NULL){
 		printf("No bin repo found\nTry running update first\n");
 		exit(EXIT_FAILURE);
 	} else if (!strcmp("search", argv[1])){
-		new_search(argv[2], sbe_v, v_size);	
+		search(argv[2], sbe_v, v_size);	
 	} else if (!strcmp("install", argv[1])){
-		new_install(argv[2], sbe_v, v_size);
+		install(argv[2], sbe_v, v_size);
 	}
 	return 0;
 }

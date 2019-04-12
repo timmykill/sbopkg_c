@@ -21,37 +21,12 @@
 #define REQUIRES_PREF "SLACKBUILD REQUIRES: "
 #define SHORT_DESC_PREF "SLACKBUILD SHORT DESCRIPTION: "
 
-static size_t new_fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size);
+static size_t fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size);
 static int get_line_lenght(MemoryStruct* mp, size_t fi, size_t pref_size);
-
 static int get_v_size(MemoryStruct* mp);
-static int fetch_sb_list(MemoryStruct* mp, Sb_entity* sbe_v, size_t v_size);
 static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char* field, size_t max_size);
 
-/* Needs error checking */
 int update()
-{
-	FILE* fp;
-	size_t v_size, v_l_size = 0;
-	Sb_entity* sbe_v;
-	printf("Getting Slackbuilds from %s\n", SB_TXT_URL);
-	MemoryStruct* mp = curl_from_url(SB_TXT_URL);
-	v_size = get_v_size(mp);
-	sbe_v = (Sb_entity*) malloc(sizeof(Sb_entity) * v_size);
-	v_l_size = fetch_sb_list(mp, sbe_v, v_size);
-	free(mp->memory);
-	/* Sort the array */
-	qsort(sbe_v, v_l_size, sizeof(Sb_entity), sbecmp);
-	/* write it in a bin file */
-	fp = fopen(CACHE_FILE, "wb");
-	fwrite(&v_l_size, sizeof(int), 1, fp); 
-	fwrite(sbe_v, v_l_size, sizeof(Sb_entity), fp);
-	fclose(fp);
-	printf("Found: %zu Could load: %zu\n", v_size, v_l_size);
-	return 1;
-}
-
-int new_update()
 {
 	FILE* fp;
 	size_t v_size,  v_l_size;
@@ -66,11 +41,10 @@ int new_update()
 		printf("Not enought memory\n");
 		return 0;
 	}
-	printf("mp: %p, sbe_v: %p, v_size: %zu\n", (void*)mp, (void*) sbe_v, v_size);
-	v_l_size = new_fetch_sb_list(mp, sbe_v, v_size);
+	v_l_size = fetch_sb_list(mp, sbe_v, v_size);
 	free(mp->memory);
 	/* Sort the array */
-	qsort(sbe_v, v_l_size, sizeof(SbEntity), new_sbecmp);
+	qsort(sbe_v, v_l_size, sizeof(SbEntity), sbecmp);
 	/* write it in a bin file */
 	fp = fopen(CACHE_FILE, "wb");
 	fwrite(&v_l_size, sizeof(size_t), 1, fp); 
@@ -92,8 +66,7 @@ int new_update()
 	return 1;
 }
 
-
-SbEntity* new_fetch_from_datafile(size_t* v_size)
+SbEntity* fetch_from_datafile(size_t* v_size)
 {
 	FILE* fp;
 	int i;
@@ -130,22 +103,6 @@ SbEntity* new_fetch_from_datafile(size_t* v_size)
 	return sbe_v;
 }
 
-
-Sb_entity* fetch_from_datafile(int* v_size)
-{
-	FILE* fp;
-	Sb_entity* sbe_v;
-	fp = fopen(CACHE_FILE, "rb");
-	if (fp == NULL)
-		return NULL;
-	fread(v_size, sizeof(int), 1, fp);
-	printf("Data size: %d\n", *v_size);
-	sbe_v = (Sb_entity*) malloc(sizeof(Sb_entity) * * v_size);
-	fread(sbe_v, sizeof(Sb_entity), * v_size, fp);
-	fclose(fp);
-	return sbe_v;
-}
-
 static int get_v_size(MemoryStruct* mp)
 {
 	int f_i, size = 0;
@@ -155,7 +112,7 @@ static int get_v_size(MemoryStruct* mp)
 	return size;
 }
 
-static size_t new_fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size)
+static size_t fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size)
 {
 	size_t logic_size = 0;
 	size_t file_index = 0;
@@ -221,34 +178,6 @@ static int get_line_lenght(MemoryStruct* mp, size_t fi, size_t pref_size)
 		fi++;
 	}
 	return size;
-}
-
-static int fetch_sb_list(MemoryStruct* mp, Sb_entity* sbe_v, size_t v_size)
-{
-	int logic_size = 0;
-	size_t file_index = 0;
-	char err;
-	Sb_entity sbe_tmp;
-	while(v_size > logic_size){
-		err = 0;
-		err |= get_line(mp, &file_index, NAME_PREF, sbe_tmp.name, SBE_NAME_MAX);
-		err |= get_line(mp, &file_index, LOCATION_PREF, sbe_tmp.location, SBE_LOCATION_MAX);
-		err |= get_line(mp, &file_index, FILES_PREF, sbe_tmp.files, SBE_FILES_MAX);
-		err |= get_line(mp, &file_index, VERSION_PREF, sbe_tmp.version, SBE_VERSION_MAX);
-		err |= get_line(mp, &file_index, DOWNLOAD_PREF, sbe_tmp.download, SBE_DOWNLOAD_MAX);
-		err |= get_line(mp, &file_index, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, SBE_DOWNLOAD_MAX);
-		err |= get_line(mp, &file_index, MD5SUM_PREF, sbe_tmp.md5sum, SBE_MD5SUM_MAX);
-		err |= get_line(mp, &file_index, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, SBE_MD5SUM_MAX);
-		err |= get_line(mp, &file_index, REQUIRES_PREF, sbe_tmp.requires, SBE_REQUIRES_MAX);
-		err |= get_line(mp, &file_index, SHORT_DESC_PREF, sbe_tmp.short_desc, SBE_SHORT_DESC_MAX);
-		file_index++;
-		if (!err){
-			sbe_v[logic_size++] = sbe_tmp;
-		} else if ((err == 2) || (err == 3)){
-			break;	
-		}
-	}
-	return logic_size;
 }
 
 /*
