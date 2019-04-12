@@ -1,10 +1,12 @@
-#include <strings.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "entities.h"
 
 
 int new_sbecmp(const void * a, const void * b)
 {
+	printf("a: %zu, b: %zu:\nb: %s", ((SbEntity*)a)->name_size, ((SbEntity*)b)->name_size,((SbEntity*)b)->name );
 	return strcmp(
 		((SbEntity*)a)->name,
 		((SbEntity*)b)->name
