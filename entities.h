@@ -30,9 +30,9 @@ typedef struct {
 	size_t short_desc_size;
 } SbEntity;
 
-
 int sbecmp(const void * a, const void * b);
-
+void sbecpy(SbEntity* dest, SbEntity* source);
 void free_sbe(SbEntity* sbe);
+void free_sbe_v(SbEntity* sbe_v, size_t size);
 
 #endif

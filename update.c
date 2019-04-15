@@ -24,7 +24,7 @@
 static size_t fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size);
 static int get_line_lenght(MemoryStruct* mp, size_t fi, size_t pref_size);
 static int get_v_size(MemoryStruct* mp);
-static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char* field, size_t max_size);
+static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char** field, size_t* max_size);
 
 int update()
 {
@@ -38,14 +38,14 @@ int update()
 	printf("Got size: %zu\n", v_size);
 	sbe_v = (SbEntity*) malloc(sizeof(SbEntity) * v_size);
 	if (sbe_v == NULL){
-		printf("Not enought memory\n");
+		fprintf(stderr, "Not enought memory\n");
 		return 0;
 	}
 	v_l_size = fetch_sb_list(mp, sbe_v, v_size);
 	free(mp->memory);
 	/* Sort the array */
 	qsort(sbe_v, v_l_size, sizeof(SbEntity), sbecmp);
-	/* write it in a bin file */
+	/* Write it in a bin file */
 	fp = fopen(CACHE_FILE, "wb");
 	fwrite(&v_l_size, sizeof(size_t), 1, fp); 
 	fwrite(sbe_v, sizeof(SbEntity), v_l_size, fp);
@@ -60,7 +60,8 @@ int update()
 		fwrite(sbe_v[i].md5sum_x86_64, 1, sbe_v[i].md5sum_x86_64_size, fp);
 		fwrite(sbe_v[i].requires, 1, sbe_v[i].requires_size, fp);
 		fwrite(sbe_v[i].short_desc, 1, sbe_v[i].short_desc_size, fp);
-	}	
+	}
+	free_sbe_v(sbe_v, v_size);	
 	fclose(fp);
 	printf("Found: %zu Could load: %zu\n", v_size, v_l_size);
 	return 1;
@@ -120,46 +121,16 @@ static size_t fetch_sb_list(MemoryStruct* mp, SbEntity* sbe_v, size_t v_size)
 	SbEntity sbe_tmp;
 	while(v_size > logic_size){
 		err = 0;
-		sbe_tmp.name_size = get_line_lenght(mp, file_index, strlen(NAME_PREF));
-		sbe_tmp.name = malloc(sbe_tmp.name_size);
-		err |= get_line(mp, &file_index, NAME_PREF, sbe_tmp.name, sbe_tmp.name_size);
-		
-		sbe_tmp.location_size = get_line_lenght(mp, file_index, strlen(LOCATION_PREF));
-		sbe_tmp.location = malloc(sbe_tmp.location_size);
-		err |= get_line(mp, &file_index, LOCATION_PREF, sbe_tmp.location, sbe_tmp.location_size);
-		
-		sbe_tmp.files_size = get_line_lenght(mp, file_index, strlen(FILES_PREF));
-		sbe_tmp.files = malloc(sbe_tmp.files_size);
-		err |= get_line(mp, &file_index, FILES_PREF, sbe_tmp.files, sbe_tmp.files_size);
-		
-		sbe_tmp.version_size = get_line_lenght(mp, file_index, strlen(VERSION_PREF));
-		sbe_tmp.version = malloc(sbe_tmp.version_size);
-		err |= get_line(mp, &file_index, VERSION_PREF, sbe_tmp.version, sbe_tmp.version_size);
-		
-		sbe_tmp.download_size = get_line_lenght(mp, file_index, strlen(DOWNLOAD_PREF));
-		sbe_tmp.download = malloc(sbe_tmp.download_size);
-		err |= get_line(mp, &file_index, DOWNLOAD_PREF, sbe_tmp.download, sbe_tmp.download_size);
-		
-		sbe_tmp.download_x86_64_size = get_line_lenght(mp, file_index, strlen(DOWNLOAD_X86_64_PREF));
-		sbe_tmp.download_x86_64 = malloc(sbe_tmp.download_x86_64_size);
-		err |= get_line(mp, &file_index, DOWNLOAD_X86_64_PREF, sbe_tmp.download_x86_64, sbe_tmp.download_x86_64_size);
-		
-		sbe_tmp.md5sum_size = get_line_lenght(mp, file_index, strlen(MD5SUM_PREF));
-		sbe_tmp.md5sum = malloc(sbe_tmp.md5sum_size);
-		err |= get_line(mp, &file_index, MD5SUM_PREF, sbe_tmp.md5sum, sbe_tmp.md5sum_size);
-		
-		sbe_tmp.md5sum_x86_64_size = get_line_lenght(mp, file_index, strlen(MD5SUM_X86_64_PREF));
-		sbe_tmp.md5sum_x86_64 = malloc(sbe_tmp.md5sum_x86_64_size);
-		err |= get_line(mp, &file_index, MD5SUM_X86_64_PREF, sbe_tmp.md5sum_x86_64, sbe_tmp.md5sum_x86_64_size);
-		
-		sbe_tmp.requires_size = get_line_lenght(mp, file_index, strlen(REQUIRES_PREF));
-		sbe_tmp.requires = malloc(sbe_tmp.requires_size);
-		err |= get_line(mp, &file_index, REQUIRES_PREF, sbe_tmp.requires, sbe_tmp.requires_size);
-		
-		sbe_tmp.short_desc_size = get_line_lenght(mp, file_index, strlen(SHORT_DESC_PREF));
-		sbe_tmp.short_desc = malloc(sbe_tmp.short_desc_size);
-		err |= get_line(mp, &file_index, SHORT_DESC_PREF, sbe_tmp.short_desc, sbe_tmp.short_desc_size);
-		
+		err |= get_line(mp, &file_index, NAME_PREF, &sbe_tmp.name, &sbe_tmp.name_size);
+		err |= get_line(mp, &file_index, LOCATION_PREF, &sbe_tmp.location, &sbe_tmp.location_size);
+		err |= get_line(mp, &file_index, FILES_PREF, &sbe_tmp.files, &sbe_tmp.files_size);
+		err |= get_line(mp, &file_index, VERSION_PREF, &sbe_tmp.version, &sbe_tmp.version_size);
+		err |= get_line(mp, &file_index, DOWNLOAD_PREF, &sbe_tmp.download, &sbe_tmp.download_size);
+		err |= get_line(mp, &file_index, DOWNLOAD_X86_64_PREF, &sbe_tmp.download_x86_64, &sbe_tmp.download_x86_64_size);
+		err |= get_line(mp, &file_index, MD5SUM_PREF, &sbe_tmp.md5sum, &sbe_tmp.md5sum_size);
+		err |= get_line(mp, &file_index, MD5SUM_X86_64_PREF, &sbe_tmp.md5sum_x86_64, &sbe_tmp.md5sum_x86_64_size);
+		err |= get_line(mp, &file_index, REQUIRES_PREF, &sbe_tmp.requires, &sbe_tmp.requires_size);
+		err |= get_line(mp, &file_index, SHORT_DESC_PREF, &sbe_tmp.short_desc, &sbe_tmp.short_desc_size);
 		file_index++; /*skip newline*/
 		if (!err){
 			sbe_v[logic_size++] = sbe_tmp;
@@ -186,14 +157,18 @@ static int get_line_lenght(MemoryStruct* mp, size_t fi, size_t pref_size)
 		1 : Ignore field
 		2 : Hit size limit
 */
-static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char* field, size_t max_size)
+static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char** field, size_t* max_size)
 {
 	char tmp = 0;
 	size_t str_len = strlen(prefix);
 	int i = 0;
+	
+	*max_size = get_line_lenght(mp, *f_i, strlen(prefix));
+	*field = malloc(*max_size);
+
 	/* check field not  null*/
-	if (field == NULL || prefix == NULL){
-		printf("Something very wrong:\n");
+	if (*field == NULL || prefix == NULL){
+		fprintf(stderr, "Something very wrong:\n");
 		return 2;
 	}
 	/* check prefix */
@@ -206,19 +181,19 @@ static char get_line(MemoryStruct* mp, size_t* f_i, char* prefix, char* field, s
 	while (
 		(*f_i) < mp->size	
 		&& (tmp = mp->memory[(*f_i)++]) != '\n'
-		&& i < max_size 
+		&& i < *max_size 
 		)
-		field[i++] = tmp;
+		(*field)[i++] = tmp;
 
 	/* if we hit max size, result is invalid */
-	if (i == max_size){
+	if (i == *max_size){
 		/* ignore till newline */
 		while ((tmp = mp->memory[(*f_i)++]) != '\n');
 		/* sent line ending */
-		field[max_size-1] = '\0';
+		(*field)[(*max_size)-1] = '\0';
 		return 1;
 	} else {
-		field[i] = '\0';
+		(*field)[i] = '\0';
 		return 0;
 	}
 }

@@ -8,8 +8,9 @@
 #include "search_install.h"
 #include "curl_helper.h"
 
-void get_files(char* tmpdir, SbEntity* sbe);
-char* make_tmpdir(char* pkgname);
+static void get_files(char* tmpdir, SbEntity* sbe);
+static char* make_tmpdir(char* pkgname);
+static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size);
 
 void search(char* s, SbEntity* sbe_v, size_t v_size)
 {
@@ -28,7 +29,7 @@ static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size)
 	if (sbe_tmp == NULL)
 		return NULL;
 	sbe = (SbEntity*) malloc(sizeof(SbEntity));
-	memcpy(sbe, sbe_tmp, sizeof(SbEntity));
+	sbecpy(sbe, sbe_tmp);
 	return sbe;
 }
 
@@ -37,17 +38,18 @@ void install(char* s, SbEntity* sbe_v, size_t v_size)
 	SbEntity* sbe;
 	char* tmpdir;
 	sbe = locate(s, sbe_v, v_size);
-	/* memory leak here */
+	free_sbe_v(sbe_v, v_size);
 	if (sbe == NULL){
-		printf("%s not found\n", s);
+		fprintf(stderr, "%s not found\n", s);
 		return;
 	}
 	printf("Installing: %s\nLocation: %s\n", sbe->name, sbe->location);	
 	tmpdir = make_tmpdir(sbe->name);
 	get_files(tmpdir, sbe);
+	free_sbe(sbe);
 }
 
-void get_files(char* tmpdir, SbEntity* sbe)
+static void get_files(char* tmpdir, SbEntity* sbe)
 {
 	int i, j;
 	char *tmpfile;
@@ -88,7 +90,7 @@ void get_files(char* tmpdir, SbEntity* sbe)
 
 }
 
-char* make_tmpdir(char* pkgname)
+static char* make_tmpdir(char* pkgname)
 {
 	int result;
 	result = mkdir(TMPDIR, 0764);
