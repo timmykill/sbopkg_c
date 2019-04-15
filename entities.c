@@ -28,12 +28,10 @@ void free_sbe(SbEntity* sbe)
 
 void free_sbe_v(SbEntity* sbe_v, size_t size)
 {
-	if (size > 0){
-		free_sbe_v(sbe_v, size - 1);
+	unsigned int i = 0;
+	for (; i < size ; i++) 
 		free_sbe(sbe_v + size);
-	} else {
-		free(sbe_v);
-	}
+	free(sbe_v);
 }
 
 void sbecpy(SbEntity* dest, SbEntity* source)
