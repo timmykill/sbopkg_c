@@ -60,6 +60,7 @@ int curl_to_file(char* url, char* dir)
   curl_global_init(CURL_GLOBAL_ALL);
   curl_handle = curl_easy_init();
   curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+  curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_to_file);
   pagefile = fopen(dir, "wb");
   if(pagefile != NULL) {
