@@ -12,13 +12,23 @@ static void get_files(char* tmpdir, SbEntity* sbe);
 static char* make_tmpdir(char* pkgname);
 static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size);
 
+void info(char* s, SbEntity* sbe_v, size_t v_size)
+{
+	SbEntity* sbe = locate(s, sbe_v, v_size);
+	free_sbe_v(sbe_v, v_size);
+	if (sbe == NULL){
+		fprintf(stderr, "%s not found\n", s);
+		return;
+	}
+	printf("Info:\n\tNome:\t%s\n\tLocation:\t%s\n\tVersion:\t%s\n\tDownload:\t%s\n\tDownload x86_64:\t%s\n\tDesc:\t%s\n", sbe->name, sbe->location, sbe->version, sbe->download, sbe->download_x86_64, sbe->short_desc);
+}
+
 void search(char* s, SbEntity* sbe_v, size_t v_size)
 {
 	int i;
-	for (i = 0; i < v_size; i++){
+	for (i = 0; i < v_size; i++)
 		if (strstr(sbe_v[i].name, s) != NULL)
 			printf("Name: %s\n%s\n\n", sbe_v[i].name, sbe_v[i].short_desc);
-		}
 }
 
 static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size)

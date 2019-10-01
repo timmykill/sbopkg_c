@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	size_t v_size;
 	int i;
 	if (argc < 2){
-		fprintf(stderr, "Usage: %s <search|update|install> <pkg>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <search|info|update|install> <pkg>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	/* per evitare tutti questi stringcmp usare hash*/
@@ -24,6 +24,8 @@ int main(int argc, char* argv[])
 	} else if (!strcmp("search", argv[1])){
 		search(argv[2], sbe_v, v_size);	
 		free_sbe_v(sbe_v, v_size);	
+	} else if (!strcmp("info", argv[1])){
+		info(argv[2], sbe_v, v_size);
 	} else if (!strcmp("install", argv[1])){
 		install(argv[2], sbe_v, v_size);
 	}
