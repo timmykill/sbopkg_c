@@ -7,9 +7,6 @@ objects = sbo.o update.o entities.o search_install.o curl_helper.o
 all: $(objects)
 	$(CC) $(CFLAGS) $(LINK) $(objects) -o $(TARGET)
 
-getinmemory: getinmemory.o
-	$(CC) $(CFLAGS) $(LINK) getinmemory.o -o getinmemory
-
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
