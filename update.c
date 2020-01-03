@@ -6,7 +6,7 @@
 #include "curl_helper.h"
 
 /* constants */
-#define CACHE_FILE "repo.bin"
+#define CACHE_FILE "/var/cache/sb_c_repo.bin"
 #define SB_TXT_URL SB_URL "/" SB_VER "/" SB_FILE
 
 /* define file prefixes */

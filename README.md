@@ -5,6 +5,6 @@ A parte gli scherzi, il progetto esiste soprattutto per evitare di dimenticare l
 
 ## TODO
 
- * Integrare lo script creato in precedenza per poter inizare ad utilizzare questo programma.
-   + Decidere dove piazzare i file temporanei e l'eseguibile, per poi integrarlo nel PATH
+ * Decidere dove piazzare i file temporanei e l'eseguibile, per poi integrarlo nel PATH
  * Creare uno SlackBuild per il progetto
+ * supporto alla creazione delle cartelle mentre faccio il dl dei file

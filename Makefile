@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g -pedantic -I/usr/local/Cellar/curl/7.64.1/include
 LINK = -L/usr/local/Cellar/curl/7.64.1/lib -lcurl -lldap -lz
-TARGET = sbopkg
+TARGET = sbopkg_c
 objects = sbo.o update.o entities.o search_install.o curl_helper.o
 
 all: $(objects)
@@ -13,5 +13,9 @@ getinmemory: getinmemory.o
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+install:
+	mkdir -p $(DESTDIR)/usr/bin/
+	cp ./sbopkg_c $(DESTDIR)/usr/bin/sbopkg_c
+
 clean:
-	rm -f *.o repo.bin
+	rm -f *.o
