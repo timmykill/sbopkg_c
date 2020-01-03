@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -pedantic -I/usr/local/Cellar/curl/7.64.1/include
 LINK = -L/usr/local/Cellar/curl/7.64.1/lib -lcurl -lldap -lz
 TARGET = sbopkg_c
-objects = sbo.o update.o entities.o search_install.o curl_helper.o
+objects = sbo.o update.o entities.o search_install.o curl_helper.o utils.o
 
 all: $(objects)
 	$(CC) $(CFLAGS) $(LINK) $(objects) -o $(TARGET)

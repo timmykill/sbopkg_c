@@ -14,9 +14,6 @@
 static void get_files(char* tmpdir, SbEntity* sbe);
 static char* make_tmpdir(char* pkgname);
 static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size);
-static char * stristr_opt(char *s1, char *s2);
-static char * stristr_safe(char *s1, char *s2);
-static char * stristr_monosafe(char *s1, char *s2);
 
 
 void info(char* s, SbEntity* sbe_v, size_t v_size)
@@ -33,13 +30,27 @@ void info(char* s, SbEntity* sbe_v, size_t v_size)
 void search(char* s, SbEntity* sbe_v, size_t v_size)
 {
 	int i;
-	char * tmp;
+	char * l_s, *tmp_name = NULL, *tmp;
+	size_t tmp_name_s = 0;
 	/* lower here the arg */
-	for (tmp = s ; *tmp != '\0'; tmp++)
-		*tmp = tolower(*tmp);
-	for (i = 0; i < v_size; i++)
-		if (stristr_monosafe(sbe_v[i].name, s) != NULL)
+	l_s = malloc(sizeof(char) * strlen(s));
+	for (i = 0 ; *(i+s) != '\0'; i++)
+		*l_s = tolower(*(i+s));
+	for (i = 0; i < v_size; i++){
+		/* save the name somewhere else to not mess up the output */
+		if (sbe_v[i].name_size > tmp_name_s){
+			free(tmp_name);
+			tmp_name_s = sbe_v[1].name_size;
+			tmp_name = malloc(sizeof(char) * tmp_name_s);
+		}
+		/* lower the name */
+		for (tmp = tmp_name ; *tmp != '\0'; tmp++)
+			*tmp = tolower(*tmp);
+		if (strstr(tmp_name, l_s) != NULL)
 			printf("Name: %s\n%s\n\n", sbe_v[i].name, sbe_v[i].short_desc);
+	}
+	free(l_s);
+	free(tmp_name);
 }
 
 static SbEntity* locate(char* s, SbEntity* sbe_v, size_t v_size)
@@ -125,57 +136,3 @@ static char* make_tmpdir(char* pkgname)
 		printf("%s:%d\n", dir, errno);
 	return dir;
 }
-
-static char * stristr_opt(char *s1, char *s2)
-{
-	char *i;
-	/* lower s1 */
-	for (i = s1 ; *i != '\0'; i++)
-		*i = tolower(*i);
-	/* dont have to lower s2 */
-	return strstr(s1, s2);
-}
-
-static char * stristr_monosafe(char *s1, char *s2)
-{
-	char *i, *tmp_s1;
-	size_t s1_s = 1; //counting last null byte
-	/* find size of s1 and s2 */
-	for(i = s1; *i != '\0'; i++)
-		s1_s++;
-	tmp_s1 = malloc(sizeof(char) * s1_s);
-	/* copy strings, to not mess up with the originals */
-	memcpy(tmp_s1, s1, s1_s);
-	/* lower s1 */
-	for (i = tmp_s1 ; *i != '\0'; i++)
-		*i = tolower(*i);
-	i = strstr(tmp_s1, s2);
-	free(tmp_s1);
-	return i;
-}
-static char * stristr_safe(char *s1, char *s2)
-{
-	char *i, *tmp_s1, *tmp_s2;
-	size_t s1_s = 1, s2_s = 1; //counting last null byte
-	/* find size of s1 and s2 */
-	for(i = s1; *i != '\0'; i++)
-		s1_s++;
-	for(i = s2; *i != '\0'; i++)
-		s2_s++;
-	tmp_s1 = malloc(sizeof(char) * s1_s);
-	tmp_s2 = malloc(sizeof(char) * s2_s);
-	/* copy strings, to not mess up with the originals */
-	memcpy(tmp_s1, s1, s1_s);
-	memcpy(tmp_s2, s2, s2_s);
-	/* lower s1 */
-	for (i = tmp_s1 ; *i != '\0'; i++)
-		*i = tolower(*i);
-	/* lower s2 */
-	for (i = tmp_s2 ; *i != '\0'; i++)
-		*i = tolower(*i);
-	i = strstr(tmp_s1, tmp_s2);
-	free(tmp_s1);
-	free(tmp_s2);
-	return i;
-}
-
