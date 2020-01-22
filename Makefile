@@ -10,6 +10,9 @@ all: $(objects)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+hashtest: utils.o hashtest.o
+	$(CC) $(CFLAGS) $(LINK) $^ -o $@
+
 install:
 	mkdir -p $(DESTDIR)/usr/bin/
 	cp ./sbopkg_c $(DESTDIR)/usr/bin/sbopkg_c

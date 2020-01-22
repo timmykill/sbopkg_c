@@ -33,16 +33,18 @@ void search(char* s, SbEntity* sbe_v, size_t v_size)
 	char * l_s, *tmp_name = NULL, *tmp;
 	size_t tmp_name_s = 0;
 	/* lower here the arg */
-	l_s = malloc(sizeof(char) * strlen(s));
-	for (i = 0 ; *(i+s) != '\0'; i++)
-		*l_s = tolower(*(i+s));
+	l_s = malloc(strlen(s));
+	for (i = 0 ; s[i] != '\0'; i++)
+		l_s[i] = tolower(s[i]);
+	l_s[i] = '\0';
 	for (i = 0; i < v_size; i++){
 		/* save the name somewhere else to not mess up the output */
 		if (sbe_v[i].name_size > tmp_name_s){
 			free(tmp_name);
-			tmp_name_s = sbe_v[1].name_size;
-			tmp_name = malloc(sizeof(char) * tmp_name_s);
+			tmp_name_s = sbe_v[i].name_size;
+			tmp_name = malloc(tmp_name_s);
 		}
+		memcpy(tmp_name, sbe_v[i].name, sbe_v[i].name_size);
 		/* lower the name */
 		for (tmp = tmp_name ; *tmp != '\0'; tmp++)
 			*tmp = tolower(*tmp);

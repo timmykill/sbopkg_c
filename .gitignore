@@ -1,0 +1,4 @@
+*.o
+*~
+sbopkg_c
+hashtest

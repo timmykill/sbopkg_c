@@ -64,6 +64,7 @@ int update()
 	free_sbe_v(sbe_v, v_size);	
 	fclose(fp);
 	printf("Found: %zu Could load: %zu\n", v_size, v_l_size);
+	printf("Wrote to file %s\n", CACHE_FILE);
 	return 1;
 }
 
