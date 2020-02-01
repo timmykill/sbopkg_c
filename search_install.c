@@ -24,7 +24,7 @@ void info(char* s, SbEntity* sbe_v, size_t v_size)
 		fprintf(stderr, "%s not found\n", s);
 		return;
 	}
-	printf("Info:\n\tNome:\t%s\n\tLocation:\t%s\n\tVersion:\t%s\n\tDownload:\t%s\n\tDownload x86_64:\t%s\n\tDesc:\t%s\n", sbe->name, sbe->location, sbe->version, sbe->download, sbe->download_x86_64, sbe->short_desc);
+	printf("Info:\n\tNome:\t%s\n\tLocation:\t%s\n\tVersion:\t%s\n\tDownload:\t%s\n\tDownload x86_64:\t%s\n\tDesc:\t\t%s\n\tRequires:\t%s\n", sbe->name, sbe->location, sbe->version, sbe->download, sbe->download_x86_64, sbe->short_desc, sbe->requires);
 }
 
 void search(char* s, SbEntity* sbe_v, size_t v_size)
