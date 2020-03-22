@@ -77,7 +77,7 @@ void install(char* s, SbEntity* sbe_v, size_t v_size)
 		fprintf(stderr, "%s not found\n", s);
 		return;
 	}
-	printf("Installing: %s\nLocation: %s\n", sbe->name, sbe->location);	
+	printf("Installing: %s\nLocation: %s\n", sbe->name, sbe->location);
 	tmpdir = make_tmpdir(sbe->name);
 	get_files(tmpdir, sbe);
 	free_sbe(sbe);
@@ -86,13 +86,13 @@ void install(char* s, SbEntity* sbe_v, size_t v_size)
 static void get_files(char* tmpdir, SbEntity* sbe)
 {
 	int i, j;
-	char *tmpfile;
-	char *url;
-	size_t tmpdir_len = strlen(tmpdir);
-	size_t url_len = strlen(SB_URL "/" SB_VER);
-	tmpfile = malloc(sbe->files_size);	
+	char *tmpfile, *url;
+	size_t tmpdir_len, url_len; 
+	tmpdir_len = strlen(tmpdir);
+	url_len = strlen(SB_URL "/" SB_VER);
+	tmpfile = malloc(sbe->files_size);
 	tmpdir = (char*) realloc(tmpdir, tmpdir_len + sbe->files_size);
-	url = (char*) malloc( url_len + sbe->location_size + sbe->files_size);
+	url = (char*) malloc(url_len + sbe->location_size + sbe->files_size);
 	strcpy(url, SB_URL "/" SB_VER);
 	if (tmpdir == NULL || url == NULL){
 		printf("Errore nell'allocare memoria");
@@ -115,22 +115,26 @@ static void get_files(char* tmpdir, SbEntity* sbe)
 		strcat(url, "/");
 		strcat(url, tmpfile);
 		curl_to_file(url , tmpdir);
+		/* SlackBuild must be executable */
+		if (strstr(tmpdir, "SlackBuild")){
+			chmod(tmpdir, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IROTH);	
+		}
 		tmpdir[tmpdir_len] = '\0';
 		url[url_len] = '\0';
-	} while (sbe->files[i] != '\0');	
+	} while (sbe->files[i] != '\0');
 	/* get the sources */
 	/* tmpdir risks out of bound here */
 	curl_to_file(sbe->download, strcat(tmpdir, strrchr(sbe->download,'/'))); 
-
 }
 
 static char* make_tmpdir(char* pkgname)
 {
 	int result;
+	char *dir;
 	result = mkdir(TMPDIR, 0764);
 	if (result < 0)
 		printf("%s:%d\n", TMPDIR, errno);
-	char* dir = (char*) malloc(strlen(pkgname) + strlen(TMPDIR));
+	dir = (char*) malloc(strlen(pkgname) + strlen(TMPDIR));
 	strcpy(dir, TMPDIR);
 	strcat(dir, pkgname);
 	result = mkdir(dir, 0764);

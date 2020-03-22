@@ -23,8 +23,7 @@ static size_t write_memory_callback(void *contents, size_t size, size_t nmemb, v
 
 static size_t write_to_file(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-  size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
-  return written;
+  return fwrite(ptr, size, nmemb, (FILE *)stream);
 }
 
 MemoryStruct* curl_from_url(char* s)

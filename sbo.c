@@ -14,6 +14,8 @@
  * install = 759
 */
 
+const char* USAGE_STRING = "Usage: %s <search|info|update|install> <pkg>\n";
+
 
 int main(int argc, char* argv[])
 {
@@ -21,7 +23,7 @@ int main(int argc, char* argv[])
 	size_t v_size;
 	int i, h;
 	if (argc < 2){
-		fprintf(stderr, "Usage: %s <search|info|update|install> <pkg>\n", argv[0]);
+		fprintf(stderr, USAGE_STRING, argv[0]);
 		exit(EXIT_FAILURE);
 	}
 	/* per evitare tutti questi stringcmp usare hash*/
@@ -46,6 +48,10 @@ int main(int argc, char* argv[])
 		case 759:
 			if (!strcmp("install", argv[1]))
 				install(argv[2], sbe_v, v_size);
+			break;
+		default:
+			fprintf(stderr, USAGE_STRING, argv[0]);
+			exit(EXIT_FAILURE);
 			break;
 	}
 	return 0;
